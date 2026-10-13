@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#100e1b">
+<title>Impostor 🎭</title>
+<style>
+:root{--bg:#100e1b;--panel:#191627;--purple:#a78bfa;--green:#28d990;--muted:#a39bb9;--red:#ff5c7c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#342151,transparent 45%),var(--bg);color:#f8f7ff;font-family:Arial,Helvetica,sans-serif}
+button,input{font:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.app{width:min(1080px,100%);margin:auto;padding:28px 24px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:42px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:linear-gradient(140deg,#b6a0ff,#7048cf);font-size:25px}
+.brand h2{margin:0;font-size:24px;letter-spacing:-1px}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.settings{padding:12px 15px;border:1px solid #ffffff18;border-radius:12px;background:#ffffff08;color:white}
+.hero{text-align:center;margin-bottom:36px}
+.eyebrow{display:inline-block;margin-bottom:14px;padding:8px 13px;border:1px solid #a78bfa35;border-radius:99px;background:#a78bfa12;color:#cbbaff;font-size:11px;font-weight:bold;letter-spacing:1px}
+.hero h1{margin:0;font-size:clamp(34px,6vw,54px);letter-spacing:-2px}
+.gradient{color:#c3a9ff}
+.hero p{max-width:480px;margin:14px auto 0;color:var(--muted);font-size:14px;line-height:1.7}
+.section{margin-top:30px}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.section-heading h2{margin:0;font-size:19px}
+.section-heading p{margin:6px 0 0;color:var(--muted);font-size:12px}
+.counter{padding:7px 10px;border:1px solid #ffffff15;border-radius:9px;color:#cbbaff;font-size:12px;white-space:nowrap}
+
+/* Grid de Jogadores Vertical */
+.players-grid{display:flex;flex-direction:column;gap:10px}
+.player{--player:#a78bfa;display:flex;align-items:center;gap:12px;width:100%;min-height:72px;padding:12px 16px;border:1px solid color-mix(in srgb,var(--player) 35%,transparent);border-radius:16px;background:linear-gradient(120deg,color-mix(in srgb,var(--player) 12%,var(--panel)),var(--panel));transition:transform .2s;position:relative}
+.player:hover{transform:translateY(-2px)}
+.avatar{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:12px;color:var(--player);background:color-mix(in srgb,var(--player) 20%,transparent);font-size:18px}
+.player-info{flex:1;min-width:0}
+.player-label{display:block;margin-bottom:3px;color:var(--muted);font-size:10px;text-transform:uppercase}
+.player-name{display:block;width:100%;overflow:hidden;padding:0;border:0;background:transparent;color:white;text-align:left;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:bold}
+.edit,.remove{flex-shrink:0;border:1px solid #ffffff15;border-radius:9px;background:#ffffff08;color:white}
+.edit{width:32px;height:32px}
+.remove{margin-left:4px;border:0;background:transparent;color:#ff8e9b;font-size:20px;padding:0 6px}
+
+/* Caixa de Inserção Fina */
+.btn-insert-card{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:26px;border:1px dashed #a78bfa60;border-radius:10px;background:#a78bfa08;color:#cbbaff;font-size:11px;font-weight:bold;transition:all .2s;cursor:pointer}
+.btn-insert-card:hover{background:#a78bfa20;border-color:var(--purple);transform:scale(1.01)}
+.btn-insert-card .plus-icon{font-size:14px;line-height:1}
+
+.add-player,.custom-topic{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:12px;border:1px dashed #8e79bd80;border-radius:14px;background:#a78bfa07;color:#cbbaff;font-size:13px;font-weight:bold;width:100%}
+.add-player{min-height:58px;border-radius:16px;margin-top:6px}
+.plus{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#a78bfa20;font-size:20px}
+
+.topics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.topic{--topic:#a78bfa;display:flex;align-items:center;gap:9px;min-width:0;padding:13px 10px;border:1px solid #ffffff15;border-radius:15px;background:var(--panel)}
+.topic.selected{border-color:var(--topic);background:color-mix(in srgb,var(--topic) 10%,var(--panel))}
+.topic input{flex-shrink:0;width:17px;height:17px;margin:0;accent-color:var(--topic)}
+.topic-emoji{display:grid;place-items:center;flex-shrink:0;width:35px;height:35px;border-radius:11px;background:color-mix(in srgb,var(--topic) 18%,transparent);font-size:18px}
+.topic-info{flex:1;min-width:0}
+.topic-name{display:block;overflow-wrap:anywhere;font-size:12px;font-weight:bold;line-height:1.4}
+.topic-count{display:block;margin-top:4px;color:var(--muted);font-size:10px}
+.topic-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.topic-add,.topic-delete{display:grid;place-items:center;width:28px;height:28px;border:1px solid #ffffff15;border-radius:99px;background:#ffffff07;color:#cbbaff;font-size:16px}
+.topic-delete{color:#ff8e9b;font-size:14px}
+.custom-topic{margin-top:12px}
+
+.bottom{margin-top:34px;padding-top:24px;border-top:1px solid #ffffff15}
+.bottom p{margin:0 0 15px;color:var(--muted);text-align:center;font-size:12px;line-height:1.7}
+.start,.btn-primary,.btn-secondary{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;border-radius:16px;font-size:16px;font-weight:900;letter-spacing:1px;transition:transform .2s, background .2s;border:none}
+.start{border:1px solid #62f0ad;background:linear-gradient(100deg,#20c981,#2cdb91);box-shadow:0 8px 30px #20c98125;color:white;letter-spacing:2px;min-height:65px}
+.btn-primary{background:linear-gradient(100deg,#8b5cf6,#a78bfa);color:white;box-shadow:0 8px 25px #8b5cf630}
+.btn-secondary{background:#ffffff10;border:1px solid #ffffff20;color:white}
+.start:hover,.btn-primary:hover,.btn-secondary:hover{transform:translateY(-2px)}
+
+/* Seletor Customizado de Impostores com Setas */
+.impostor-stepper{display:flex;align-items:center;justify-content:center;gap:18px;margin:20px 0 10px}
+.step-btn{width:46px;height:46px;border-radius:14px;border:1px solid #ffffff20;background:#ffffff10;color:white;font-size:20px;font-weight:bold;display:grid;place-items:center;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:all .15s}
+.step-btn:active{transform:scale(0.92);background:#a78bfa30}
+.step-btn:disabled{opacity:0.3;cursor:not-allowed}
+.step-value{font-size:28px;font-weight:bold;color:var(--purple);min-width:40px;text-align:center}
+
+/* Telas do Jogo */
+.game-screen{display:none;max-width:560px;margin:20px auto 0;text-align:center}
+.game-screen.active{display:block}
+.game-card{padding:30px 24px;border-radius:24px;background:var(--panel);border:1px solid #ffffff18;box-shadow:0 20px 50px #0008;margin-bottom:20px;position:relative;overflow:hidden}
+.player-turn-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-weight:bold;font-size:13px;margin-bottom:18px;background:#ffffff10}
+
+/* Moldura e Animação de Cortina (Subida suave) */
+.hold-box{min-height:165px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;border-radius:18px;background:#100e1b;border:2px dashed #ffffff20;margin:20px 0;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none}
+.hold-box.revealed{border-style:solid;border-color:var(--purple);background:#211a38}
+.hold-box.impostor-bg{border-color:var(--red);background:#331520}
+
+.curtain-overlay{position:absolute;inset:0;background:linear-gradient(180deg,#191627,#100e1b);z-index:2;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;transition:transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)}
+.hold-box.revealed .curtain-overlay{transform:translateY(-100%)}
+
+.secret-word{font-size:clamp(24px,5vw,36px);font-weight:bold;color:#28d990;margin:10px 0}
+.impostor-title{font-size:clamp(22px,5vw,28px);font-weight:bold;color:var(--red);margin:8px 0 4px}
+.topic-hint-badge{display:inline-block;padding:6px 14px;border-radius:99px;background:#ff5c7c25;border:1px solid #ff5c7c50;color:#ffb3c1;font-size:12px;font-weight:bold;margin-top:8px}
+
+.hold-btn{width:100%;min-height:65px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;color:white;font-weight:bold;font-size:16px;box-shadow:0 8px 20px #7c3aed40;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.hold-btn:active{transform:scale(0.98);background:#6d28d9}
+
+/* Tabela de Votação Vertical */
+.round-info{font-size:14px;color:var(--muted);margin-bottom:20px}
+.round-starter{display:inline-block;padding:12px 20px;border-radius:14px;background:#a78bfa18;border:1px solid #a78bfa40;color:#cbbaff;font-weight:bold;margin-bottom:24px;font-size:15px}
+.voting-section{margin:20px 0;text-align:left;background:#100e1b;padding:16px;border-radius:16px;border:1px solid #ffffff15}
+.voting-title{font-size:14px;font-weight:bold;color:var(--purple);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.vote-grid{display:flex;flex-direction:column;gap:8px}
+.vote-card{padding:12px 16px;border-radius:12px;background:#191627;border:1px solid #ffffff15;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;transition:all .15s}
+.vote-card.selected{border-color:var(--red);background:#ff5c7c20;color:white;font-weight:bold}
+.impostors-reveal{display:none;margin-top:20px;padding:16px;border-radius:14px;background:#ff5c7c15;border:1px solid #ff5c7c40;color:#ff8e9b}
+
+footer{padding-top:22px;color:#777087;text-align:center;font-size:11px}
+.backdrop{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;padding:18px;background:#080611d9;backdrop-filter:blur(8px)}
+.backdrop.open{display:flex}
+.modal{width:min(430px,100%);max-height:85vh;overflow-y:auto;padding:23px;border:1px solid #ffffff20;border-radius:20px;background:#191627;box-shadow:0 25px 80px #0008}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
+.modal h2{margin:0;font-size:22px}
+.modal-description{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+.close{width:32px;height:32px;border:1px solid #ffffff15;border-radius:9px;background:#ffffff08;color:white;font-size:20px}
+.field{margin-bottom:17px}
+.field label{display:block;margin-bottom:8px;color:#ded8ef;font-size:12px;font-weight:bold}
+.field input{width:100%;min-height:44px;padding:11px;border:1px solid #ffffff20;border-radius:10px;background:#100e1b;color:white}
+.field small{display:block;margin-top:7px;color:var(--muted);font-size:11px;line-height:1.6}
+.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:23px}
+.cancel,.confirm{min-height:41px;padding:0 15px;border-radius:10px;font-size:12px;font-weight:bold}
+.cancel{border:1px solid #ffffff15;background:#ffffff08;color:white}
+.confirm{border:1px solid #b6a0ff;background:#a78bfa;color:#171025}
+.toast{position:fixed;z-index:20;left:50%;bottom:22px;width:max-content;max-width:calc(100% - 30px);padding:13px 17px;border:1px solid #ffffff20;border-radius:12px;background:#29233b;color:white;font-size:13px;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%,10px);transition:.2s}
+.toast.visible{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){
+.app{padding:20px 16px 28px}
+header{margin-bottom:32px}
+.brand h2{font-size:21px}
+.settings{width:43px;padding:10px;font-size:0}
+.settings span{font-size:19px}
+.topics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:380px){
+.app{padding-right:11px;padding-left:11px}
+.player{gap:8px;padding:10px}
+.avatar{width:32px;height:32px}
+.topic{gap:6px;padding:9px 6px}
+.topic-emoji{width:29px;height:29px}
+.topic-add,.topic-delete{width:24px;height:24px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <!-- TELA DE CONFIGURAÇÃO (MENU PRINCIPAL) -->
+  <div id="setupScreen">
+    <header>
+      <div class="brand">
+        <div class="logo">🎭</div>
+        <div><h2>impostor<span style="color:#a78bfa">.</span></h2><p>Um jogo de blefes e suspeitas</p></div>
+      </div>
+      <button class="settings" id="settingsBtn"><span>⚙</span> Configurações</button>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">● REÚNA A GALERA</div>
+      <h1>Quem está <span class="gradient">mentindo?</span></h1>
+      <p>Todo mundo sabe a palavra... menos o Impostor. Prepare a partida e descubra quem está blefando.</p>
+    </section>
+    <section class="section">
+      <div class="section-heading">
+        <div><h2>Quem vai jogar?</h2><p>Toque no nome para editar ou no + para inserir na posição desejada.</p></div>
+        <span class="counter" id="playerCounter">3 jogadores</span>
+      </div>
+      <div class="players-grid" id="playersGrid"></div>
+    </section>
+    <section class="section">
+      <div class="section-heading">
+        <div><h2>Escolha os temas</h2><p>Selecione um ou mais temas para a partida.</p></div>
+        <span class="counter" id="topicCounter">0 selecionados</span>
+      </div>
+      <div class="topics-grid" id="topicsGrid"></div>
+      <button class="custom-topic" id="customTopicBtn"><span class="plus">+</span> Adicionar tema personalizado</button>
+    </section>
+    <section class="bottom">
+      <p>Já chamou todo mundo?<br>Preparem-se para desconfiar até dos próprios amigos.</p>
+      <button class="start" id="startBtn">▶ &nbsp; COMEÇAR</button>
+    </section>
+  </div>
+
+  <!-- TELA DE PASSAR O CELULAR COM EFEITO CORTINA -->
+  <div class="game-screen" id="revealScreen">
+    <div class="game-card">
+      <div class="player-turn-badge" id="playerTurnBadge">
+        <span id="turnAvatar">♟</span>
+        <span id="turnPlayerName">Jogador 1</span>
+      </div>
+      <h2>Passe o dispositivo para <span id="targetPlayerName" style="color:var(--purple)">Jogador</span></h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:6px;">Garantam que ninguém mais esteja olhando a tela!</p>
+
+      <div class="hold-box" id="holdBox">
+        <div class="curtain-overlay">Pressione e segure o botão abaixo para ver seu papel</div>
+        <div id="holdContent">
+          <div id="roleText"></div>
+        </div>
+      </div>
+
+      <button class="hold-btn" id="holdBtn">👆 SEGURE PARA VER SEU PAPEL</button>
+      <button class="btn-primary" id="nextPlayerBtn" style="display:none;margin-top:15px;">PRÓXIMO JOGADOR ➔</button>
+    </div>
+  </div>
+
+  <!-- TELA DA RODADA ATIVA E VOTAÇÃO -->
+  <div class="game-screen" id="roundScreen">
+    <div class="game-card">
+      <div class="eyebrow">● PARTIDA EM ANDAMENTO</div>
+      <h1 style="margin:10px 0 5px;font-size:28px;">Hora da Investigação! 🎭</h1>
+      <p class="round-info">Façam perguntas de forma sutil sem entregar a palavra ao impostor.</p>
+      
+      <div class="round-starter">
+        🗣️ Quem começa a rodada: <span id="starterPlayerName" style="color:white;font-size:17px;display:block;margin-top:4px;">-</span>
+      </div>
+
+      <!-- Tabela de Votação do Host -->
+      <div class="voting-section">
+        <div class="voting-title">
+          <span>🗳️ Suspeitos Votados (Host)</span>
+          <span id="voteCountBadge" style="font-size:11px;color:var(--muted)">0 de 1 selecionados</span>
+        </div>
+        <div class="vote-grid" id="voteGrid"></div>
+      </div>
+
+      <div class="impostors-reveal" id="impostorsReveal">
+        <strong>🎭 Impostor(es) da rodada:</strong>
+        <div id="impostorsList" style="font-size:18px;font-weight:bold;color:white;margin-top:6px;"></div>
+        <div id="secretWordReveal" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:25px;">
+        <button class="btn-secondary" id="showImpostorsBtn">🔍 Revelar Impostor(es)</button>
+        <button class="btn-primary" id="newGameBtn">🔄 Nova Partida / Voltar ao Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Feito para reunir amigos e criar suspeitas. 🎭</footer>
+</main>
+
+<div class="backdrop" id="backdrop">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div><h2 id="modalTitle"></h2><p class="modal-description" id="modalDescription"></p></div>
+      <button class="close" id="closeModal" aria-label="Fechar">×</button>
+    </div>
+    <div id="modalBody"></div>
+    <div class="actions" id="modalActions"></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STORAGE_KEY = "impostor-setup-v2";
+
+const colors = [
+  "#A78BFA","#38BDF8","#FB923C","#34D399","#F472B6",
+  "#FACC15","#60A5FA","#FB7185","#2DD4BF","#C084FC",
+  "#A3E635","#F97316","#818CF8","#E879F9","#4ADE80"
+];
+
+const initialTopics = [
+  {id:"technology",name:"Tecnologias",emoji:"💻",color:"#60A5FA",
+   words:["Celular","Computador","Internet","Videogame","Fone de ouvido","Inteligência artificial","Teclado","Câmera","Smartwatch","Tablet","Roteador Wi-Fi","Impressora 3D","Drone","Servidor","Pen Drive","Placa de Vídeo","Microfone","Algoritmo","Carregador Solar","Satélite"]},
+  {id:"sports",name:"Esportes",emoji:"⚽",color:"#34D399",
+   words:["Futebol","Basquete","Vôlei","Natação","Tênis","Skate","Boxe","Surfe","Handebol","Golfe","Atletismo","Judo","Ciclismo","Muay Thai","Crossfit","Corrida de F1","Escalada","Ping Pong","Remo","Esgrima"]},
+  {id:"vehicles",name:"Veículos",emoji:"🚗",color:"#FB923C",
+   words:["Carro","Moto","Caminhão","Bicicleta","Avião","Helicóptero","Ônibus","Submarino","Triciclo","Lancha","Trator","Patinete Elétrico","Teleférico","Jet Ski","Bonde","Nave Espacial","Balão","Metrô","Guinchamento","Marea Turbo"]},
+  {id:"celebrities",name:"Pessoas Famosas",emoji:"⭐",color:"#F472B6",
+   words:["Neymar","Anitta","Cristiano Ronaldo","Taylor Swift","MrBeast","Elon Musk","Faustão","Xuxa","Casimiro","Silvio Santos","Michael Jackson","Beyoncé","Keanu Reeves","Will Smith","Lionel Messi","Zendaya","Whindersson Nunes","Alok","Marília Mendonça","Ayrton Senna"]},
+  {id:"entertainment",name:"Séries, Filmes e TV",emoji:"🎬",color:"#C084FC",
+   words:["Stranger Things","Harry Potter","Breaking Bad","Shrek","The Office","Round 6","Vingadores","Titanic","Matrix","Chaves","BBB","Game of Thrones","Spider-Man","Avatar","Homem de Ferro","Pantera Negra","Coraline","Barbie","Star Wars","Pica-Pau"]},
+  {id:"professions",name:"Profissões",emoji:"🧑‍🚀",color:"#FACC15",
+   words:["Médico","Professor","Bombeiro","Programador","Chef de cozinha","Advogado","Astronauta","Policial","Dentista","Veterinário","Piloto","Arquiteto","Psicólogo","Jornalista","Fotógrafo","Eletricista","Ator","Enfermeiro","Detetive","Cientista"]},
+  {id:"games",name:"Jogos",emoji:"🎮",color:"#818CF8",
+   words:["Minecraft","GTA","Roblox","Fortnite","The Sims","Mario Kart","Dark Souls","Valorant","League of Legends","FIFA","God of War","Pac-Man","Tetris","Clash Royale","Free Fire","Zelda","Counter-Strike","Fall Guys","Cyberpunk","Overwatch"]},
+  {id:"food",name:"Comidas e Bebidas",emoji:"🍕",color:"#FB7185",
+   words:["Pizza","Hambúrguer","Açaí","Sushi","Brigadeiro","Coxinha","Pastel","Churrasco","Lasanha","Taco","Pão de Queijo","Café","Suco de Laranja","Milkshake","Strogonoff","Tapioca","Sorvete","Chocolate","Pipoca","Feijoada"]},
+  {id:"animals",name:"Animais",emoji:"🐾",color:"#A3E635",
+   words:["Cachorro","Gato","Capivara","Pinguim","Tubarão","Girafa","Ornitorrinco","Leão","Elefante","Panda","Lobo","Coruja","Golfinho","Cobra","Camaleão","Preguiça","Tartaruga","Águia","Urso Polar","Jacaré"]}
+];
+
+let players = [
+  {id:1,name:"Player 1"},
+  {id:2,name:"Player 2"},
+  {id:3,name:"Player 3"}
+];
+
+let topics = initialTopics.map(t => ({
+  ...t, words:[...t.words], extraWords:[], selected:false
+}));
+
+let impostorCount = 1;
+let secretMaxUnlocked = false;
+let nextPlayerId = 4;
+let nextTopicId = 1;
+let starterIndexCounter = 0;
+let selectedVotes = [];
+let toastTimer;
+
+let gameState = {
+  activePlayers: [],
+  secretWord: "",
+  selectedTopicName: "",
+  impostorIds: [],
+  currentTurnIndex: 0,
+  isAllImpostorsRound: false
+};
+
+const $ = id => document.getElementById(id);
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      players, topics, nextPlayerId, nextTopicId
+    }));
+  } catch(e) {
+    console.warn("Não foi possível salvar as configurações.", e);
+  }
+}
+
+function load() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!data) return;
+
+    if (Array.isArray(data.players) && data.players.length >= 3) {
+      players = data.players;
+    }
+
+    if (Array.isArray(data.topics)) {
+      const saved = new Map(data.topics.map(t => [t.id,t]));
+
+      topics = initialTopics.map(t => {
+        const old = saved.get(t.id);
+        return {
+          ...t,
+          words:[...t.words],
+          extraWords:Array.isArray(old?.extraWords) ? old.extraWords : [],
+          selected:old?.selected === true
+        };
+      });
+
+      data.topics
+        .filter(t => !initialTopics.some(original => original.id === t.id))
+        .forEach(t => topics.push(t));
+    }
+
+    nextPlayerId = Math.max(
+      Number(data.nextPlayerId) || 4,
+      ...players.map(p => p.id + 1)
+    );
+    nextTopicId = Number(data.nextTopicId) || 1;
+  } catch(e) {
+    console.warn("Erro ao carregar configurações.", e);
+  }
+}
+
+function toast(message) {
+  $("toast").textContent = message;
+  $("toast").classList.add("visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(
+    () => $("toast").classList.remove("visible"), 2600
+  );
+}
+
+function renderPlayers() {
+  const grid = $("playersGrid");
+  grid.replaceChildren();
+
+  players.forEach((p, i) => {
+    const color = colors[i % colors.length];
+    const card = document.createElement("article");
+    card.className = "player";
+    card.style.setProperty("--player", color);
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "♟";
+
+    const info = document.createElement("div");
+    info.className = "player-info";
+
+    const label = document.createElement("span");
+    label.className = "player-label";
+    label.textContent = "Posição " + (i + 1);
+
+    const name = document.createElement("button");
+    name.type = "button";
+    name.className = "player-name";
+    name.textContent = p.name;
+    name.title = "Editar nome";
+    name.addEventListener("click", () => editPlayer(p.id));
+
+    info.append(label, name);
+    card.append(avatar, info);
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "edit";
+    edit.textContent = "✎";
+    edit.setAttribute("aria-label", "Editar " + p.name);
+    edit.addEventListener("click", () => editPlayer(p.id));
+    card.append(edit);
+
+    if (players.length > 3) {
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "remove";
+      remove.textContent = "×";
+      remove.title = "Remover jogador";
+      remove.addEventListener("click", () => removePlayer(p.id));
+      card.append(remove);
+    }
+
+    grid.append(card);
+
+    if (i < players.length - 1) {
+      const insertCard = document.createElement("button");
+      insertCard.type = "button";
+      insertCard.className = "btn-insert-card";
+      insertCard.innerHTML = `<span class="plus-icon">+</span> Inserir jogador aqui`;
+      insertCard.title = `Entrar entre ${p.name} e ${players[i+1].name}`;
+      insertCard.addEventListener("click", () => addPlayerAt(i + 1));
+      grid.append(insertCard);
+    }
+  });
+
+  const add = document.createElement("button");
+  add.type = "button";
+  add.className = "add-player";
+  add.innerHTML = '<span class="plus">+</span><span>Adicionar jogador</span>';
+  add.disabled = players.length >= 30;
+  add.addEventListener("click", () => addPlayerAt(players.length));
+  grid.append(add);
+
+  $("playerCounter").textContent = players.length + " jogadores";
+
+  const normalLimit = Math.min(3, players.length - 1);
+  if (!secretMaxUnlocked && impostorCount > normalLimit) {
+    impostorCount = normalLimit;
+  }
+}
+
+function editPlayer(id) {
+  const player = players.find(p => p.id === id);
+  if (!player) return;
+
+  openModal(
+    "Editar jogador",
+    "Escolha o nome que aparecerá durante a partida.",
+    '<div class="field"><label for="playerInput">Nome do jogador</label><input id="playerInput" maxlength="24" placeholder="Digite o nome"></div>',
+    "Salvar",
+    () => {
+      const input = $("playerInput");
+      const name = input.value.trim();
+
+      if (!name) {
+        toast("Digite um nome para o jogador.");
+        input.focus();
+        return false;
+      }
+
+      player.name = name;
+      renderPlayers();
+      save();
+      toast("Nome atualizado!");
+      return true;
+    }
+  );
+
+  $("playerInput").value = player.name;
+  $("playerInput").focus();
+  $("playerInput").select();
+}
+
+function addPlayerAt(index) {
+  if (players.length >= 30) {
+    toast("O limite desta versão é de 30 jogadores.");
+    return;
+  }
+
+  const id = nextPlayerId++;
+  const newPlayer = { id, name: "Player " + id };
+  players.splice(index, 0, newPlayer);
+
+  renderPlayers();
+  save();
+  editPlayer(id);
+}
+
+function removePlayer(id) {
+  if (players.length <= 3) {
+    toast("São necessários pelo menos 3 jogadores.");
+    return;
+  }
+
+  players = players.filter(p => p.id !== id);
+  renderPlayers();
+  save();
+  toast("Jogador removido.");
+}
+
+function renderTopics() {
+  const grid = $("topicsGrid");
+  grid.replaceChildren();
+
+  topics.forEach(t => {
+    const card = document.createElement("article");
+    card.className = "topic" + (t.selected ? " selected" : "");
+    card.style.setProperty("--topic", t.color || "#A78BFA");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = t.selected;
+    checkbox.setAttribute("aria-label", "Selecionar " + t.name);
+
+    checkbox.addEventListener("change", () => {
+      t.selected = checkbox.checked;
+      card.classList.toggle("selected", checkbox.checked);
+      updateTopicCounter();
+      save();
+    });
+
+    const emoji = document.createElement("span");
+    emoji.className = "topic-emoji";
+    emoji.textContent = t.emoji || "🎲";
+
+    const info = document.createElement("div");
+    info.className = "topic-info";
+
+    const name = document.createElement("span");
+    name.className = "topic-name";
+    name.textContent = t.name;
+
+    const count = document.createElement("span");
+    count.className = "topic-count";
+    const total = t.words.length + t.extraWords.length;
+    count.textContent = total + (total === 1 ? " palavra" : " palavras");
+
+    info.append(name, count);
+
+    const actions = document.createElement("div");
+    actions.className = "topic-actions";
+
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "topic-add";
+    add.textContent = "+";
+    add.title = "Adicionar palavras a " + t.name;
+    add.setAttribute("aria-label", add.title);
+    add.addEventListener("click", () => addWords(t.id));
+    actions.append(add);
+
+    // Permite remover apenas os temas personalizados criados pelo usuário
+    if (t.id.startsWith("custom-")) {
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "topic-delete";
+      del.textContent = "🗑️";
+      del.title = "Excluir tema " + t.name;
+      del.setAttribute("aria-label", del.title);
+      del.addEventListener("click", () => deleteTopic(t.id));
+      actions.append(del);
+    }
+
+    card.append(checkbox, emoji, info, actions);
+    grid.append(card);
+  });
+
+  updateTopicCounter();
+}
+
+function deleteTopic(id) {
+  const topic = topics.find(t => t.id === id);
+  if (!topic) return;
+
+  openModal(
+    "Excluir tema",
+    `Tem certeza de que deseja excluir o tema personalizado "${topic.name}"?`,
+    "",
+    "Excluir",
+    () => {
+      topics = topics.filter(t => t.id !== id);
+      renderTopics();
+      save();
+      toast("Tema personalizado removido.");
+      return true;
+    }
+  );
+}
+
+function updateTopicCounter() {
+  const n = topics.filter(t => t.selected).length;
+  $("topicCounter").textContent = n + (n === 1 ? " selecionado" : " selecionados");
+}
+
+function addWords(id) {
+  const topic = topics.find(t => t.id === id);
+  if (!topic) return;
+
+  openModal(
+    "Palavras extras",
+    "Adicione palavras ao tema " + topic.name + ".",
+    '<div class="field"><label for="wordsInput">Novas palavras</label><input id="wordsInput" maxlength="1000" placeholder="Ex.: Fiat Uno, Fusca, Kombi"><small>Separe as palavras por vírgula. As palavras originais serão mantidas.</small></div><div class="field"><label>Palavras extras atuais</label><small id="existingWords"></small></div>',
+    "Adicionar",
+    () => {
+      const input = $("wordsInput");
+      const words = input.value.split(",").map(w => w.trim()).filter(Boolean);
+
+      if (!words.length) {
+        toast("Digite pelo menos uma palavra.");
+        input.focus();
+        return false;
+      }
+
+      const existing = new Set(
+        [...topic.words, ...topic.extraWords].map(w => w.toLocaleLowerCase("pt-BR"))
+      );
+
+      let added = 0;
+      words.forEach(word => {
+        const key = word.toLocaleLowerCase("pt-BR");
+        if (!existing.has(key)) {
+          topic.extraWords.push(word);
+          existing.add(key);
+          added++;
+        }
+      });
+
+      renderTopics();
+      save();
+      toast(added ? added + " palavra(s) adicionada(s)!" : "Essas palavras já existem.");
+      return true;
+    }
+  );
+
+  $("existingWords").textContent = topic.extraWords.join(", ") || "Nenhuma palavra extra adicionada.";
+  $("wordsInput").focus();
+}
+
+function createTopic() {
+  openModal(
+    "Criar tema personalizado",
+    "Invente uma categoria e coloque as palavras que quiser.",
+    '<div class="field"><label for="newTopicName">Nome do tema</label><input id="newTopicName" maxlength="40" placeholder="Ex.: Memes da turma"></div><div class="field"><label for="newTopicWords">Palavras</label><input id="newTopicWords" maxlength="1000" placeholder="Ex.: Apelido, bordão, meme"><small>Separe as palavras por vírgula. Você poderá adicionar outras depois.</small></div>',
+    "Criar tema",
+    () => {
+      const name = $("newTopicName").value.trim();
+      const words = $("newTopicWords").value.split(",").map(w => w.trim()).filter(Boolean);
+
+      if (!name) {
+        toast("Digite o nome do tema.");
+        $("newTopicName").focus();
+        return false;
+      }
+
+      if (topics.some(t => t.name.toLocaleLowerCase("pt-BR") === name.toLocaleLowerCase("pt-BR"))) {
+        toast("Esse tema já existe.");
+        $("newTopicName").focus();
+        return false;
+      }
+
+      topics.push({
+        id: "custom-" + nextTopicId++,
+        name,
+        emoji: "🎲",
+        color: colors[topics.length % colors.length],
+        words: [...new Set(words)],
+        extraWords: [],
+        selected: true
+      });
+
+      renderTopics();
+      save();
+      toast("Tema criado!");
+      return true;
+    }
+  );
+
+  $("newTopicName").focus();
+}
+
+function openSettings() {
+  const normalMax = Math.min(3, players.length - 1);
+  const absoluteMax = players.length;
+
+  openModal(
+    "Configurações",
+    "Escolha a quantidade de impostores para a partida.",
+    `
+      <div class="field" style="text-align:center;">
+        <label>Quantidade de Impostores</label>
+        <div class="impostor-stepper">
+          <button type="button" class="step-btn" id="decImpostor">❮</button>
+          <span class="step-value" id="impostorValue">${impostorCount}</span>
+          <button type="button" class="step-btn" id="incImpostor">❯</button>
+        </div>
+      </div>
+    `,
+    "Salvar",
+    () => {
+      toast("Configurações salvas!");
+      return true;
+    }
+  );
+
+  const decBtn = $("decImpostor");
+  const incBtn = $("incImpostor");
+  const display = $("impostorValue");
+
+  function updateStepper() {
+    display.textContent = impostorCount;
+    decBtn.disabled = impostorCount <= 1;
+    const currentMax = secretMaxUnlocked ? absoluteMax : normalMax;
+    incBtn.disabled = impostorCount >= currentMax;
+  }
+
+  decBtn.addEventListener("click", () => {
+    if (impostorCount > 1) {
+      impostorCount--;
+      updateStepper();
+    }
+  });
+
+  incBtn.addEventListener("click", () => {
+    const currentMax = secretMaxUnlocked ? absoluteMax : normalMax;
+    if (impostorCount < currentMax) {
+      impostorCount++;
+      updateStepper();
+    }
+  });
+
+  let pressTimer = null;
+
+  const startHold = () => {
+    pressTimer = setTimeout(() => {
+      secretMaxUnlocked = true;
+      toast("🔓 Modo especial ativado!");
+      updateStepper();
+    }, 7000);
+  };
+
+  const cancelHold = () => {
+    clearTimeout(pressTimer);
+  };
+
+  incBtn.addEventListener("mousedown", startHold);
+  incBtn.addEventListener("mouseup", cancelHold);
+  incBtn.addEventListener("mouseleave", cancelHold);
+
+  incBtn.addEventListener("touchstart", (e) => {
+    startHold();
+  });
+  incBtn.addEventListener("touchend", cancelHold);
+
+  updateStepper();
+}
+
+function openModal(title, description, html, confirmText, onSave) {
+  $("modalTitle").textContent = title;
+  $("modalDescription").textContent = description;
+  $("modalBody").innerHTML = html;
+  $("modalActions").replaceChildren();
+
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "cancel";
+  cancel.textContent = "Cancelar";
+  cancel.addEventListener("click", closeModal);
+
+  const confirm = document.createElement("button");
+  confirm.type = "button";
+  confirm.className = "confirm";
+  confirm.textContent = confirmText;
+
+  confirm.addEventListener("click", () => {
+    if (onSave() !== false) closeModal();
+  });
+
+  $("modalActions").append(cancel, confirm);
+  $("backdrop").classList.add("open");
+}
+
+function closeModal() {
+  $("backdrop").classList.remove("open");
+}
+
+function startGame() {
+  if (players.length < 3) {
+    toast("Adicione pelo menos 3 jogadores.");
+    return;
+  }
+
+  const selectedTopics = topics.filter(t => t.selected);
+  if (selectedTopics.length === 0) {
+    toast("Selecione pelo menos um tema!");
+    $("topicsGrid").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  const chosenTopic = selectedTopics[Math.floor(Math.random() * selectedTopics.length)];
+  const topicWordPool = [...chosenTopic.words, ...chosenTopic.extraWords];
+
+  if (topicWordPool.length === 0) {
+    toast("O tema selecionado não possui palavras disponíveis.");
+    return;
+  }
+
+  const randomWord = topicWordPool[Math.floor(Math.random() * topicWordPool.length)];
+  const playerIds = players.map(p => p.id);
+  const shuffledIds = [...playerIds].sort(() => Math.random() - 0.5);
+  
+  const isAllImpostors = impostorCount >= players.length;
+  const activeImpostorCount = isAllImpostors ? players.length : Math.min(impostorCount, players.length - 1);
+  const selectedImpostors = isAllImpostors ? [...playerIds] : shuffledIds.slice(0, activeImpostorCount);
+
+  gameState.activePlayers = players.map((p, i) => ({
+    ...p,
+    color: colors[i % colors.length]
+  }));
+  gameState.secretWord = randomWord;
+  gameState.selectedTopicName = chosenTopic.name;
+  gameState.impostorIds = selectedImpostors;
+  gameState.currentTurnIndex = 0;
+  gameState.isAllImpostorsRound = isAllImpostors;
+
+  $("setupScreen").style.display = "none";
+  $("roundScreen").classList.remove("active");
+  $("revealScreen").classList.add("active");
+
+  showPlayerTurn();
+}
+
+function showPlayerTurn() {
+  const p = gameState.activePlayers[gameState.currentTurnIndex];
+
+  $("playerTurnBadge").style.color = p.color;
+  $("turnPlayerName").textContent = p.name;
+  $("targetPlayerName").textContent = p.name;
+
+  $("holdBox").className = "hold-box";
+  $("holdBtn").style.display = "block";
+  $("nextPlayerBtn").style.display = "none";
+
+  const isImpostor = gameState.impostorIds.includes(p.id);
+
+  if (isImpostor) {
+    $("roleText").innerHTML = `
+      <div style="font-size:28px;">🎭</div>
+      <div class="impostor-title">VOCÊ É O IMPOSTOR!</div>
+      <div style="color:#ff8e9b;font-size:12px;line-height:1.4;">Tente descobrir a palavra sem ser pego!</div>
+      <div class="topic-hint-badge">💡 Tema da Rodada: ${gameState.selectedTopicName}</div>
+    `;
+  } else {
+    $("roleText").innerHTML = `
+      <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Sua Palavra Secreta:</div>
+      <div class="secret-word">${gameState.secretWord}</div>
+      <div style="color:var(--muted);font-size:12px;">Descubra quem não sabe esta palavra!</div>
+    `;
+  }
+}
+
+function revealRole() {
+  const p = gameState.activePlayers[gameState.currentTurnIndex];
+  const isImpostor = gameState.impostorIds.includes(p.id);
+
+  $("holdBox").classList.add("revealed");
+  if (isImpostor) {
+    $("holdBox").classList.add("impostor-bg");
+  }
+}
+
+function hideRole() {
+  $("holdBox").className = "hold-box";
+  $("nextPlayerBtn").style.display = "block";
+}
+
+function advanceTurn() {
+  gameState.currentTurnIndex++;
+
+  if (gameState.currentTurnIndex < gameState.activePlayers.length) {
+    showPlayerTurn();
+  } else {
+    startRound();
+  }
+}
+
+function startRound() {
+  $("revealScreen").classList.remove("active");
+  $("roundScreen").classList.add("active");
+
+  const starter = gameState.activePlayers[starterIndexCounter % gameState.activePlayers.length];
+  starterIndexCounter++;
+  $("starterPlayerName").textContent = starter.name;
+
+  selectedVotes = [];
+  renderVotingTable();
+
+  $("impostorsReveal").style.display = "none";
+  $("showImpostorsBtn").style.display = "block";
+}
+
+function renderVotingTable() {
+  const grid = $("voteGrid");
+  grid.replaceChildren();
+
+  const maxVotesAllowed = gameState.isAllImpostorsRound ? 3 : Math.min(impostorCount, gameState.activePlayers.length - 1);
+  $("voteCountBadge").textContent = `${selectedVotes.length} de ${maxVotesAllowed} selecionados`;
+
+  gameState.activePlayers.forEach(p => {
+    const card = document.createElement("div");
+    const isSelected = selectedVotes.includes(p.id);
+    card.className = "vote-card" + (isSelected ? " selected" : "");
+    card.innerHTML = `<span>${p.name}</span><span>${isSelected ? "📌" : "⚪"}</span>`;
+
+    card.addEventListener("click", () => {
+      if (isSelected) {
+        selectedVotes = selectedVotes.filter(id => id !== p.id);
+      } else {
+        if (selectedVotes.length < maxVotesAllowed) {
+          selectedVotes.push(p.id);
+        } else {
+          toast(`Você pode selecionar no máximo ${maxVotesAllowed} suspeito(s).`);
+        }
+      }
+      renderVotingTable();
+    });
+
+    grid.append(card);
+  });
+}
+
+function revealImpostors() {
+  let displayedImpostors = [];
+
+  if (gameState.isAllImpostorsRound) {
+    const shuffled = [...gameState.activePlayers].sort(() => Math.random() - 0.5);
+    displayedImpostors = shuffled.slice(0, 3).map(p => p.name);
+  } else {
+    displayedImpostors = gameState.activePlayers
+      .filter(p => gameState.impostorIds.includes(p.id))
+      .map(p => p.name);
+  }
+
+  $("impostorsList").textContent = displayedImpostors.join(", ");
+  $("secretWordReveal").textContent = `A palavra secreta era: "${gameState.secretWord}" (Tema: ${gameState.selectedTopicName})`;
+  $("impostorsReveal").style.display = "block";
+  $("showImpostorsBtn").style.display = "none";
+}
+
+function resetToMenu() {
+  $("roundScreen").classList.remove("active");
+  $("revealScreen").classList.remove("active");
+  $("setupScreen").style.display = "block";
+}
+
+const holdBtn = $("holdBtn");
+
+holdBtn.addEventListener("mousedown", revealRole);
+holdBtn.addEventListener("mouseup", hideRole);
+holdBtn.addEventListener("mouseleave", hideRole);
+
+holdBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  revealRole();
+});
+holdBtn.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  hideRole();
+});
+
+$("nextPlayerBtn").addEventListener("click", advanceTurn);
+$("startBtn").addEventListener("click", startGame);
+$("showImpostorsBtn").addEventListener("click", revealImpostors);
+$("newGameBtn").addEventListener("click", resetToMenu);
+
+$("settingsBtn").addEventListener("click", openSettings);
+$("customTopicBtn").addEventListener("click", createTopic);
+$("closeModal").addEventListener("click", closeModal);
+
+$("backdrop").addEventListener("click", event => {
+  if (event.target === $("backdrop")) closeModal();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeModal();
+});
+
+load();
+renderPlayers();
+renderTopics();
+</script>
+</body>
+</html>
